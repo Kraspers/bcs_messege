@@ -1,1 +1,67 @@
-ok
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boocs Messenger</title>
+  <style>
+    :root { --bg:#0f1115; --card:#171a21; --muted:#98a1b3; --text:#f4f7ff; --accent:#4f8cff; }
+    *{box-sizing:border-box;font-family:Inter,system-ui,Arial}
+    body{margin:0;background:var(--bg);color:var(--text)}
+    .app{display:grid;grid-template-columns:280px 1fr;height:100vh}
+    .sidebar{border-right:1px solid #252a35;padding:12px;background:#12151b}
+    .title{font-size:20px;font-weight:700;margin:4px 0 12px}
+    .chat{padding:10px;border-radius:10px;cursor:pointer;margin-bottom:8px;background:#161a22}
+    .chat.active{outline:1px solid var(--accent)}
+    .main{display:flex;flex-direction:column}
+    .top{padding:12px;border-bottom:1px solid #252a35}
+    .msgs{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+    .msg{max-width:70%;padding:10px;border-radius:12px;background:#1a1f2a}
+    .me{align-self:flex-end;background:#2a3e6a}
+    .input{display:flex;gap:8px;padding:12px;border-top:1px solid #252a35}
+    input{flex:1;background:#11151d;color:#fff;border:1px solid #2c3342;border-radius:10px;padding:10px}
+    button{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 14px;cursor:pointer}
+    .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+    .tab{padding:8px;border-radius:8px;background:#1a1f2a;text-align:center;color:var(--muted);font-size:12px}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="title">Boocs</div>
+    <div id="chatList"></div>
+    <div class="tabs">
+      <div class="tab">Чаты</div><div class="tab">Сервисы</div><div class="tab">Звонки</div><div class="tab">Настройки</div>
+    </div>
+  </aside>
+  <section class="main">
+    <div class="top" id="chatTitle">Выберите чат</div>
+    <div class="msgs" id="messages"></div>
+    <div class="input">
+      <input id="text" placeholder="Написать сообщение..." />
+      <button id="send">Отправить</button>
+    </div>
+  </section>
+</div>
+<script>
+const seed = [
+ {id:'c1', title:'Личка: Alex', messages:[{me:false,text:'Привет! Это Boocs.'}]},
+ {id:'c2', title:'Группа: Product Team', messages:[{me:false,text:'Созвон в 16:00'}]},
+ {id:'c3', title:'Канал: Новости', messages:[{me:false,text:'Добро пожаловать в канал'}]}
+];
+const storeKey='boocs_static_data_v1';
+let data = JSON.parse(localStorage.getItem(storeKey) || 'null') || seed;
+let current = data[0]?.id;
+const chatList = document.getElementById('chatList');
+const messages = document.getElementById('messages');
+const chatTitle = document.getElementById('chatTitle');
+function persist(){localStorage.setItem(storeKey, JSON.stringify(data));}
+function renderChats(){chatList.innerHTML='';data.forEach(c=>{const el=document.createElement('div');el.className='chat'+(c.id===current?' active':'');el.textContent=c.title;el.onclick=()=>{current=c.id;render();};chatList.appendChild(el);});}
+function renderMsgs(){const c=data.find(x=>x.id===current);if(!c){messages.innerHTML='';return;}chatTitle.textContent=c.title;messages.innerHTML='';c.messages.forEach(m=>{const el=document.createElement('div');el.className='msg'+(m.me?' me':'');el.textContent=m.text;messages.appendChild(el);});messages.scrollTop=messages.scrollHeight;}
+function render(){renderChats();renderMsgs();persist();}
+document.getElementById('send').onclick=()=>{const t=document.getElementById('text');const val=t.value.trim();if(!val)return;const c=data.find(x=>x.id===current);c.messages.push({me:true,text:val});t.value='';render();setTimeout(()=>{c.messages.push({me:false,text:'Эхо: '+val});render();},500);};
+document.getElementById('text').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('send').click();});
+render();
+</script>
+</body>
+</html>

@@ -19,6 +19,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.get('/health', (req,res)=>res.json({status:'ok'}));
+app.get('/', (req,res)=>res.status(200).json({name:'Boocs Messenger API',status:'ok'}));
 
 app.post('/auth/register', (req, res) => { try { res.json(services.auth.register(req.body)); } catch (e) { res.status(400).json({ error: e.message }); }});
 app.post('/auth/login', (req, res) => { try { res.json(services.auth.login(req.body)); } catch (e) { res.status(400).json({ error: e.message }); }});

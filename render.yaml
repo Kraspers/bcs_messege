@@ -1,11 +1,13 @@
 services:
   - type: web
     name: boocs-messenger-api
-    env: node
+    runtime: node
     plan: free
+    rootDir: .
     buildCommand: npm install
-    startCommand: npm start
+    startCommand: npm run start
     healthCheckPath: /health
+    autoDeploy: true
     envVars:
       - key: NODE_VERSION
         value: 20
